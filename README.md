@@ -4,15 +4,15 @@ If you are building ESP32 code using Arduino IDE, you can change some of the boa
 
 There are two main paths you can take to build custom arduino-esp32 library:
 
-1. Use lbernstone's [esp32-arduino-lib-builder](https://hub.docker.com/r/lbernstone/esp32-arduino-lib-builder) using Docker.
+1. Use Espressif's [ESP32 Arduino Lib Builder](https://github.com/espressif/esp32-arduino-lib-builder) using Ubuntu on VirtualBox.
 
-2. Use Espressif's [ESP32 Arduino Lib Builder](https://github.com/espressif/esp32-arduino-lib-builder) using Ubuntu on VirtualBox.
+2. Use lbernstone's [esp32-arduino-lib-builder](https://hub.docker.com/r/lbernstone/esp32-arduino-lib-builder) using Docker.
 
-## Build arduino-esp32 using Ubuntu
+## Build arduino-esp32 on Windows using Ubuntu
 
 This page will guide you through all steps needed to build custom arduino-esp32 on Windows from scratch.
 
-Instructions last updated: 2021-08-10, [arduino-esp32](https://github.com/espressif/arduino-esp32) version `2.0.0-rc1`.
+Instructions last updated: **2021-08-31**, [arduino-esp32](https://github.com/espressif/arduino-esp32) version **2.0.0**.
 
 ### Add ESP32 board to Arduino IDE
 
@@ -24,7 +24,7 @@ Instructions last updated: 2021-08-10, [arduino-esp32](https://github.com/espres
 
 	(URL is taken from [arduino-esp32](https://github.com/espressif/arduino-esp32#esp32-s2-and-esp32-c3-support) instructions.)
 
-* Go to *Tools* → *Board* → *Boards Manager* and install *esp32* board, version *2.0.0-rc1*.
+* Go to *Tools* → *Board* → *Boards Manager* and install *esp32* board, version *2.0.0*.
 
 * Close Arduino IDE.
 
@@ -100,32 +100,35 @@ Instructions last updated: 2021-08-10, [arduino-esp32](https://github.com/espres
 
 ### Edit configuration and build the library
 
-Now you can edit *sdkconfig* files using `idf.py menuconfig` command. Rename relevant *sdkconfig.esp32..* file to *sdkconfig*, run `idf.py menuconfig` and then rename it back. For example:
+Now you can edit *sdkconfig* files using `idf.py menuconfig` command. Rename relevant *sdkconfig.esp32...* file to *sdkconfig*, run `idf.py menuconfig` and then rename it back. For example:
 * `mv sdkconfig.esp32s2 sdkconfig`
 * `idf.py menuconfig`
 * `mv sdkconfig sdkconfig.esp32s2`
 
-To build arduino-esp32 library, run: `./build.sh`
+To build arduino-esp32 library, run:
+* `./build.sh`
 
 Build process will take some time and show various warnings. You can ignore them.
 
 Miscellaneous:
 * If `idf.py menuconfig` command results in *idf.py: command not found* error, use command with the full path: `~/esp32-arduino-lib-builder/esp-idf/tools/idf.py menuconfig`.
-* Original arduino-esp32 *sdkconfig* files can be found in each subfolder of `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.0-rc1\tools\sdk\` on Windows.
+* Original arduino-esp32 *sdkconfig* files can be found in each subfolder of `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.0\tools\sdk\` on Windows.
 * To speed up build process and build library only for some platforms, not for all three (ESP32, ESP32-S2 and ESP32-C3), run `nano build.sh` and edit line starting with `TARGETS=`.
 
 ### Transfer and install custom library
 
 To transfer files from Ubuntu to Windows, download [pscp.exe](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html).
 
-Navigate Windows command prompt to folder with *pscp.exe* and execute: `pscp.exe -P 2222 -r ubuntu@127.0.0.1:/home/ubuntu/esp32-arduino-lib-builder/out .` (command ends with a dot).
+Navigate Windows command prompt to folder with *pscp.exe* and execute the following commands (first command ends with a dot):
+* `pscp.exe -P 2222 -r ubuntu@127.0.0.1:/home/ubuntu/esp32-arduino-lib-builder/out .`
+* `pscp.exe -P 2222 -r ubuntu@127.0.0.1:/home/ubuntu/esp32-arduino-lib-builder/components/arduino/cores out/cores`
 
 Library files will be transfered to `out` folder.
 
-(Before proceeding, I suggest you make a backup of `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.0-rc1\` folder at this point.)
+(Before proceeding with the steps below, I suggest you make a backup of `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.0\` folder.)
 
-Edit file `out\platform.txt`: replace line `tools.esptool_py.path` with the one from original file `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.0-rc1\platform.txt`.
+Edit file `out\platform.txt`: replace line `tools.esptool_py.path` with the one from original file `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.0\platform.txt`.
 
-Copy and overwrite all files from `out` folder to `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.0-rc1\`.
+Copy and overwrite all files from `out` folder to `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.0\`.
 
 Run Arduino IDE and you should be able to build your project.
