@@ -2,17 +2,13 @@
 
 If you are building ESP32 code using Arduino IDE, you can change some of the board settings using *Tools* menu, for example CPU frequency and flash frequency/mode/size. But if you want to change any other setting that `idf.py menuconfig` command allows you to (for example RTC source), you must build custom arduino-esp32 library and overwrite the one that is used by Arduino IDE.
 
-There are two main paths you can take to build custom arduino-esp32 library:
-
-1. Use Espressif's [ESP32 Arduino Lib Builder](https://github.com/espressif/esp32-arduino-lib-builder) using Ubuntu on VirtualBox.
-
-2. Use lbernstone's [esp32-arduino-lib-builder](https://hub.docker.com/r/lbernstone/esp32-arduino-lib-builder) using Docker.
+We can do that with **Espressif's [ESP32 Arduino Lib Builder](https://github.com/espressif/esp32-arduino-lib-builder) using Ubuntu on VirtualBox**.
 
 ## Build arduino-esp32 on Windows using Ubuntu
 
 This page will guide you through all steps needed to build custom arduino-esp32 on Windows from scratch.
 
-Instructions last updated: **2021-08-31**, [arduino-esp32](https://github.com/espressif/arduino-esp32) version **2.0.0**.
+Instructions last updated: **2021-12-23**, [arduino-esp32](https://github.com/espressif/arduino-esp32) version **2.0.2**.
 
 ### Add ESP32 board to Arduino IDE
 
@@ -20,11 +16,11 @@ Instructions last updated: **2021-08-31**, [arduino-esp32](https://github.com/es
 
 * Go to *File* → *Preferences* and add the following URL to the *Additional Boards Manager URLs* field:
 
-	`https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_dev_index.json`
+	`https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json`
 
-	(URL is taken from [arduino-esp32](https://github.com/espressif/arduino-esp32#esp32-s2-and-esp32-c3-support) instructions.)
+	(URL is taken from [Arduino ESP32 Installing](https://docs.espressif.com/projects/arduino-esp32/en/latest/installing.html).)
 
-* Go to *Tools* → *Board* → *Boards Manager* and install *esp32* board, version *2.0.0*.
+* Go to *Tools* → *Board* → *Boards Manager* and install *esp32* board, version *2.0.2*.
 
 * Close Arduino IDE.
 
@@ -32,7 +28,7 @@ Instructions last updated: **2021-08-31**, [arduino-esp32](https://github.com/es
 
 * Install [VirtualBox](https://www.virtualbox.org/wiki/Downloads) (*Windows hosts*).
 
-* Download [Ubuntu Server](https://ubuntu.com/download/server) ISO image. Choose *Option 2 - Manual server installation* and download one of the releases. Instructions below are for version 21.
+* Download [Ubuntu Server](https://ubuntu.com/download/server) ISO image. Choose *Option 2 - Manual server installation* and download one of the releases. Instructions below are for version 21.10.
 
 * In VirtualBox, go to *Machine* → *New*.
 	* *Name and operating system*: Enter "Ubuntu" as *Name*. *Type* should be *Linux* and *Version* should be *Ubuntu (64-bit)*.
@@ -40,7 +36,7 @@ Instructions last updated: **2021-08-31**, [arduino-esp32](https://github.com/es
 	* *Hard disk*: Select *Create a virtual hard disk now*.
 	* *Hard disk file type*: *VDI* is fine.
 	* *Storage on physical hard disk*: Select *Fixed size* if you have enough resources.
-	* *File location and size*: Set size to 15 GB. 10 GB may not be enough.
+	* *File location and size*: Set size to 20 GB or at least 15 GB.
 
 * Start the machine you have just created.
 
@@ -49,6 +45,7 @@ Instructions last updated: **2021-08-31**, [arduino-esp32](https://github.com/es
 * Ubuntu Server installer will boot up and guide you through installation.
 	* Default settings are mostly ok.
 	* Change keyboard layout if it does not match yours.
+	* Choose full Ubuntu Server (not minimized).
 	* When confirming data loss on disks selected for installation, you can safely continue, because in this case "disk" refers to the 15 GB virtual disk we have created above.
 	* *Your server's name*: `ubuntu`
 	* *Pick a username*: `ubuntu`
@@ -112,7 +109,7 @@ Build process will take some time and show various warnings. You can ignore them
 
 Miscellaneous:
 * If `idf.py menuconfig` command results in *idf.py: command not found* error, use command with the full path: `~/esp32-arduino-lib-builder/esp-idf/tools/idf.py menuconfig`.
-* Original arduino-esp32 *sdkconfig* files can be found in each subfolder of `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.0\tools\sdk\` on Windows.
+* Original arduino-esp32 *sdkconfig* files can be found in each subfolder of `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.2\tools\sdk\` on Windows.
 * To speed up build process and build library only for some platforms, not for all three (ESP32, ESP32-S2 and ESP32-C3), run `nano build.sh` and edit line starting with `TARGETS=`.
 
 ### Transfer and install custom library
@@ -125,10 +122,10 @@ Navigate Windows command prompt to folder with *pscp.exe* and execute the follow
 
 Library files will be transfered to `out` folder.
 
-(Before proceeding with the steps below, I suggest you make a backup of `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.0\` folder.)
+(Before proceeding with the steps below, I suggest you make a backup of `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.2\` folder.)
 
-Edit file `out\platform.txt`: replace line `tools.esptool_py.path` with the one from original file `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.0\platform.txt`.
+Edit file `out\platform.txt`: replace line `tools.esptool_py.path` with the one from original file `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.2\platform.txt`.
 
-Copy and overwrite all files from `out` folder to `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.0\`.
+Copy and overwrite all files from `out` folder to `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.2\`.
 
 Run Arduino IDE and you should be able to build your project.
