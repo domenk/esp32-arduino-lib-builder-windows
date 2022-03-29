@@ -8,19 +8,20 @@ We can do that with **Espressif's [ESP32 Arduino Lib Builder](https://github.com
 
 This page will guide you through all steps needed to build custom arduino-esp32 on Windows from scratch.
 
-Instructions last updated: **2021-12-23**, [arduino-esp32](https://github.com/espressif/arduino-esp32) version **2.0.2**.
+Instructions last updated: **2022-03-29**, [arduino-esp32](https://github.com/espressif/arduino-esp32) version **2.0.3-RC1**.
 
 ### Add ESP32 board to Arduino IDE
 
 * Install and open [Arduino IDE](https://www.arduino.cc/en/software).
 
-* Go to *File* → *Preferences* and add the following URL to the *Additional Boards Manager URLs* field:
+* Go to *File* → *Preferences* and add the following URLs to the *Additional Boards Manager URLs* field:
 
 	`https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json`
+	`https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_dev_index.json`
 
-	(URL is taken from [Arduino ESP32 Installing](https://docs.espressif.com/projects/arduino-esp32/en/latest/installing.html).)
+	(URLs are taken from [Arduino-ESP32 Installing](https://docs.espressif.com/projects/arduino-esp32/en/latest/installing.html).)
 
-* Go to *Tools* → *Board* → *Boards Manager* and install *esp32* board, version *2.0.2*.
+* Go to *Tools* → *Board* → *Boards Manager* and install *esp32* board, version *2.0.3-RC1*.
 
 * Close Arduino IDE.
 
@@ -81,36 +82,47 @@ Instructions last updated: **2021-12-23**, [arduino-esp32](https://github.com/es
 
 ### Install ESP32 Arduino Lib Builder
 
-(Commands are taken from [ESP32 Arduino Lib Builder – Build on Ubuntu and Raspberry Pi](https://github.com/espressif/esp32-arduino-lib-builder#build-on-ubuntu-and-raspberry-pi) section.)
+(Commands are taken from [Arduino-ESP32 documentation – Library Builder](https://docs.espressif.com/projects/arduino-esp32/en/latest/lib_builder.html). Documentation on [ESP32 Arduino Lib Builder](https://github.com/espressif/esp32-arduino-lib-builder/blob/master/README.md) is obsolete.)
 
-* `sudo apt-get install git wget curl libssl-dev libncurses-dev flex bison gperf python3 python3-pip python3-setuptools python3-serial python3-click python3-cryptography python3-future python3-pyparsing python3-pyelftools cmake ninja-build ccache`
-
-	(Original instructions list Python packages with `python-` prefix instead of `python3-`.)
-
+* `sudo apt-get install git wget curl libssl-dev libncurses-dev flex bison gperf cmake ninja-build ccache jq python3`
 * `sudo pip install --upgrade pip`
+* `sudo pip install --upgrade setuptools pyserial click cryptography future pyparsing pyelftools`
 * `cd`
 * `git clone https://github.com/espressif/esp32-arduino-lib-builder`
 * `cd esp32-arduino-lib-builder`
-* `./tools/update-components.sh`
-* `source ./tools/install-esp-idf.sh`
-* `cd ~/esp32-arduino-lib-builder`
+* `./build.sh -t none`
 
-### Edit configuration and build the library
+(Last command takes a while to execute on the first run.)
 
-Now you can edit *sdkconfig* files using `idf.py menuconfig` command. Rename relevant *sdkconfig.esp32...* file to *sdkconfig*, run `idf.py menuconfig` and then rename it back. For example:
-* `mv sdkconfig.esp32s2 sdkconfig`
-* `idf.py menuconfig`
-* `mv sdkconfig sdkconfig.esp32s2`
+### Edit configuration
 
-To build arduino-esp32 library, run:
+Changing build configuration (`sdkconfig` file) is a bit challenging. Because resulting `sdkconfig` file is concatenated from various files in `configs/` directory, we first need to generate "original" sdkconfig, then sdkconfig with wanted configuration changes, and at last incorporate these changes into files in `configs/` directory.
+
+In the following commands we will use `esp32s2` as a target. Supported targets are: `esp32`, `esp32s2`, `esp32s3`, `esp32c3`.
+
+* `./build.sh -b menuconfig -t esp32s2`
+* Do not make any changes yet. Just quit.
+* `cp sdkconfig sdkconfig.original`
+* `./build.sh -b menuconfig -t esp32s2`
+* Make configuration changes you want. Save and quit.
+* `diff --color sdkconfig.original sdkconfig`
+
+Resulting changes needs to be incorporated into file `configs/defconfig.esp32s2`. Various tips:
+* Some of the removed configuration options may not exist in `defconfig.esp32s2`. No need to do anything.
+* You can skip added/removed lines that are commented (they start with "#").
+* You can skip added deprecated options (from line "# Deprecated options for backward compatibility" to "# End of deprecated options").
+
+After you've incorporated all changes, run `./build.sh -b menuconfig -t esp32s2` again and check if changes are applied.
+
+### Build the library
+
+Build for all targets:
 * `./build.sh`
 
-Build process will take some time and show various warnings. You can ignore them.
+Build for a specific target only:
+* `./build.sh -t esp32s2`
 
-Miscellaneous:
-* If `idf.py menuconfig` command results in *idf.py: command not found* error, use command with the full path: `~/esp32-arduino-lib-builder/esp-idf/tools/idf.py menuconfig`.
-* Original arduino-esp32 *sdkconfig* files can be found in each subfolder of `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.2\tools\sdk\` on Windows.
-* To speed up build process and build library only for some platforms, not for all three (ESP32, ESP32-S2 and ESP32-C3), run `nano build.sh` and edit line starting with `TARGETS=`.
+Note: script deletes old build files on each run.
 
 ### Transfer and install custom library
 
@@ -122,10 +134,10 @@ Navigate Windows command prompt to folder with *pscp.exe* and execute the follow
 
 Library files will be transfered to `out` folder.
 
-(Before proceeding with the steps below, I suggest you make a backup of `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.2\` folder.)
+(Before proceeding with the steps below, I suggest you make a backup of `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.3-RC1\` folder.)
 
-Edit file `out\platform.txt`: replace line `tools.esptool_py.path` with the one from original file `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.2\platform.txt`.
+Edit file `out\platform.txt`: replace line `tools.esptool_py.path` with the one from original file `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.3-RC1\platform.txt`.
 
-Copy and overwrite all files from `out` folder to `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.2\`.
+Copy and overwrite all files from `out` folder to `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.3-RC1\`.
 
 Run Arduino IDE and you should be able to build your project.
