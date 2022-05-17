@@ -8,7 +8,7 @@ We can do that with **Espressif's [ESP32 Arduino Lib Builder](https://github.com
 
 This page will guide you through all steps needed to build custom arduino-esp32 on Windows from scratch.
 
-Instructions last updated: **2022-03-29**, [arduino-esp32](https://github.com/espressif/arduino-esp32) version **2.0.3-RC1**.
+Instructions last updated: **2022-05-17**, [arduino-esp32](https://github.com/espressif/arduino-esp32) version **2.0.3**.
 
 ### Add ESP32 board to Arduino IDE
 
@@ -21,7 +21,7 @@ Instructions last updated: **2022-03-29**, [arduino-esp32](https://github.com/es
 
 	(URLs are taken from [Arduino-ESP32 Installing](https://docs.espressif.com/projects/arduino-esp32/en/latest/installing.html).)
 
-* Go to *Tools* → *Board* → *Boards Manager* and install *esp32* board, version *2.0.3-RC1*.
+* Go to *Tools* → *Board* → *Boards Manager* and install *esp32* board, version *2.0.3*.
 
 * Close Arduino IDE.
 
@@ -29,7 +29,7 @@ Instructions last updated: **2022-03-29**, [arduino-esp32](https://github.com/es
 
 * Install [VirtualBox](https://www.virtualbox.org/wiki/Downloads) (*Windows hosts*).
 
-* Download [Ubuntu Server](https://ubuntu.com/download/server) ISO image. Choose *Option 2 - Manual server installation* and download one of the releases. Instructions below are for version 21.10.
+* Download [Ubuntu Server](https://ubuntu.com/download/server) ISO image. Choose *Option 2 - Manual server installation* and download one of the releases. Instructions below are for version 22.04.
 
 * In VirtualBox, go to *Machine* → *New*.
 	* *Name and operating system*: Enter "Ubuntu" as *Name*. *Type* should be *Linux* and *Version* should be *Ubuntu (64-bit)*.
@@ -52,9 +52,9 @@ Instructions last updated: **2022-03-29**, [arduino-esp32](https://github.com/es
 	* *Pick a username*: `ubuntu`
 	* *SSH Setup*: Check option *Install OpenSSH server*.
 	* After installation completes, select *Reboot Now*.
-	* *Failed unmounting /cdroom* error may appear. Just press enter key to continue.
+	* Error *Failed unmounting /cdroom* may appear. Just press enter key to continue.
 
-* When system boots, *ubuntu login* prompt will appear. Enter `ubuntu` (username we chose above).
+* When system boots, *ubuntu login* prompt will appear (if it does not appear but system seems to finish loading, press enter key and prompt should appear). Enter `ubuntu` (username we chose above).
 
 * We will now configure Ubuntu and VirtualBox to allow SSH connection. SSH will make using command line easier (native support for copy and paste) and will later allow us to transfer arduino-esp32 files to Windows without installing VirtualBox Guest Additions. Enter the following commands:
 	* `sudo apt-get update`
@@ -84,7 +84,7 @@ Instructions last updated: **2022-03-29**, [arduino-esp32](https://github.com/es
 
 (Commands are taken from [Arduino-ESP32 documentation – Library Builder](https://docs.espressif.com/projects/arduino-esp32/en/latest/lib_builder.html). Documentation on [ESP32 Arduino Lib Builder](https://github.com/espressif/esp32-arduino-lib-builder/blob/master/README.md) is obsolete.)
 
-* `sudo apt-get install git wget curl libssl-dev libncurses-dev flex bison gperf cmake ninja-build ccache jq python3`
+* `sudo apt-get install git wget curl libssl-dev libncurses-dev flex bison gperf cmake ninja-build ccache jq python3 python3-pip python-is-python3`
 * `sudo pip install --upgrade pip`
 * `sudo pip install --upgrade setuptools pyserial click cryptography future pyparsing pyelftools`
 * `cd`
@@ -134,10 +134,10 @@ Navigate Windows command prompt to folder with *pscp.exe* and execute the follow
 
 Library files will be transfered to `out` folder.
 
-(Before proceeding with the steps below, I suggest you make a backup of `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.3-RC1\` folder.)
+(Before proceeding with the steps below, I suggest you make a backup of `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.3\` folder.)
 
-Edit file `out\platform.txt`: replace line `tools.esptool_py.path` with the one from original file `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.3-RC1\platform.txt`.
+Edit file `out\platform.txt`: replace line `tools.esptool_py.path` with the one from original file `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.3\platform.txt`.
 
-Copy and overwrite all files from `out` folder to `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.3-RC1\`.
+Copy and overwrite all files from `out` folder to `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.3\`.
 
 Run Arduino IDE and you should be able to build your project.
