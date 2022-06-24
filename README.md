@@ -8,7 +8,7 @@ We can do that with **Espressif's [ESP32 Arduino Lib Builder](https://github.com
 
 This page will guide you through all steps needed to build custom arduino-esp32 on Windows from scratch.
 
-Instructions last updated: **2022-05-17**, [arduino-esp32](https://github.com/espressif/arduino-esp32) version **2.0.3**.
+Instructions last updated: **2022-06-24**, [arduino-esp32](https://github.com/espressif/arduino-esp32) version **2.0.3**.
 
 ### Add ESP32 board to Arduino IDE
 
@@ -93,6 +93,10 @@ Instructions last updated: **2022-05-17**, [arduino-esp32](https://github.com/es
 * `./build.sh -t none`
 
 (Last command takes a while to execute on the first run.)
+
+If the last command prints *The following Python requirements are not satisfied* somewhere in the ouput, it failed. Run command `sudo pip install`, followed by packages listed in the output. Enclose package names in quotation marks and separate them with space. The following command should probably do the trick:
+
+`sudo pip install "pyparsing>=2.0.3,<2.4.0" "idf-component-manager~=1.0" "gdbgui==0.13.2.0" "pygdbmi<=0.9.0.2" "python-socketio<5" "itsdangerous<2.1" "kconfiglib==13.7.1" "reedsolo>=1.5.3,<=1.5.4" "bitstring>=3.1.6" "ecdsa>=0.16.0" "construct==2.10.54"`
 
 ### Edit configuration
 
