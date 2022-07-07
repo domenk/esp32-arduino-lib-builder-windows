@@ -8,7 +8,7 @@ We can do that with **Espressif's [ESP32 Arduino Lib Builder](https://github.com
 
 This page will guide you through all steps needed to build custom arduino-esp32 on Windows from scratch.
 
-Instructions last updated: **2022-06-24**, [arduino-esp32](https://github.com/espressif/arduino-esp32) version **2.0.3**.
+Instructions last updated: **2022-07-07**, [arduino-esp32](https://github.com/espressif/arduino-esp32) version **2.0.4**.
 
 ### Add ESP32 board to Arduino IDE
 
@@ -21,7 +21,7 @@ Instructions last updated: **2022-06-24**, [arduino-esp32](https://github.com/es
 
 	(URLs are taken from [Arduino-ESP32 Installing](https://docs.espressif.com/projects/arduino-esp32/en/latest/installing.html).)
 
-* Go to *Tools* → *Board* → *Boards Manager* and install *esp32* board, version *2.0.3*.
+* Go to *Tools* → *Board* → *Boards Manager* and install *esp32* board, version *2.0.4*.
 
 * Close Arduino IDE.
 
@@ -47,6 +47,7 @@ Instructions last updated: **2022-06-24**, [arduino-esp32](https://github.com/es
 	* Default settings are mostly ok.
 	* Change keyboard layout if it does not match yours.
 	* Choose full Ubuntu Server (not minimized).
+	* On *Storage configuration* step installer might not allocate all available disk space for mount point `/` (for example, you created disk with 20 GB, but installer allocated only 10 GB). Change the size of device mounted to `/` (*ubuntu-lg*) to fix this.
 	* When confirming data loss on disks selected for installation, you can safely continue, because in this case "disk" refers to the 15 GB virtual disk we have created above.
 	* *Your server's name*: `ubuntu`
 	* *Pick a username*: `ubuntu`
@@ -98,6 +99,8 @@ If the last command prints *The following Python requirements are not satisfied*
 
 `sudo pip install "pyparsing>=2.0.3,<2.4.0" "idf-component-manager~=1.0" "gdbgui==0.13.2.0" "pygdbmi<=0.9.0.2" "python-socketio<5" "itsdangerous<2.1" "kconfiglib==13.7.1" "reedsolo>=1.5.3,<=1.5.4" "bitstring>=3.1.6" "ecdsa>=0.16.0" "construct==2.10.54"`
 
+If previous `pip install` command fails with error regarding *cffi* package version mismatch, run `sudo apt-get install python3-cffi` and then execute above `pip install` command again.
+
 ### Edit configuration
 
 Changing build configuration (`sdkconfig` file) is a bit challenging. Because resulting `sdkconfig` file is concatenated from various files in `configs/` directory, we first need to generate "original" sdkconfig, then sdkconfig with wanted configuration changes, and at last incorporate these changes into files in `configs/` directory.
@@ -111,7 +114,7 @@ In the following commands we will use `esp32s2` as a target. Supported targets a
 * Make configuration changes you want. Save and quit.
 * `diff --color sdkconfig.original sdkconfig`
 
-Resulting changes needs to be incorporated into file `configs/defconfig.esp32s2`. Various tips:
+Resulting changes need to be incorporated into file `configs/defconfig.esp32s2`. Various tips:
 * Some of the removed configuration options may not exist in `defconfig.esp32s2`. No need to do anything.
 * You can skip added/removed lines that are commented (they start with "#").
 * You can skip added deprecated options (from line "# Deprecated options for backward compatibility" to "# End of deprecated options").
@@ -138,10 +141,10 @@ Navigate Windows command prompt to folder with *pscp.exe* and execute the follow
 
 Library files will be transfered to `out` folder.
 
-(Before proceeding with the steps below, I suggest you make a backup of `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.3\` folder.)
+(Before proceeding with the steps below, I suggest you make a backup of `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.4\` folder.)
 
-Edit file `out\platform.txt`: replace line `tools.esptool_py.path` with the one from original file `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.3\platform.txt`.
+Edit file `out\platform.txt`: replace line `tools.esptool_py.path` with the one from original file `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.4\platform.txt`.
 
-Copy and overwrite all files from `out` folder to `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.3\`.
+Copy and overwrite all files from `out` folder to `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.4\`.
 
 Run Arduino IDE and you should be able to build your project.
