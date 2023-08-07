@@ -2,13 +2,13 @@
 
 If you are building ESP32 code using Arduino IDE, you can change some of the board settings using *Tools* menu, for example CPU frequency and flash frequency/mode/size. But if you want to change any other setting that `idf.py menuconfig` command allows you to (for example RTC source), you must build custom arduino-esp32 library and overwrite the one that is used by Arduino IDE.
 
-We can do that with **Espressif's [ESP32 Arduino Lib Builder](https://github.com/espressif/esp32-arduino-lib-builder) using Ubuntu on VirtualBox**.
+We can do that with **Espressif’s [ESP32 Arduino Lib Builder](https://github.com/espressif/esp32-arduino-lib-builder) using Ubuntu on VirtualBox**.
 
 ## Build arduino-esp32 on Windows using Ubuntu
 
 This page will guide you through all steps needed to build custom arduino-esp32 on Windows from scratch.
 
-Instructions last updated: **2022-09-17**, [arduino-esp32](https://github.com/espressif/arduino-esp32) version **2.0.5**.
+Instructions last updated: **2023-08-07**, [arduino-esp32](https://github.com/espressif/arduino-esp32) version **2.0.11**.
 
 ### Add ESP32 board to Arduino IDE
 
@@ -16,40 +16,44 @@ Instructions last updated: **2022-09-17**, [arduino-esp32](https://github.com/es
 
 * Go to *File* → *Preferences* and add the following URLs to the *Additional Boards Manager URLs* field:
 
-	`https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json`
-	`https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_dev_index.json`
+	`https://espressif.github.io/arduino-esp32/package_esp32_index.json`
+	`https://espressif.github.io/arduino-esp32/package_esp32_dev_index.json`
 
 	(URLs are taken from [Arduino-ESP32 Installing](https://docs.espressif.com/projects/arduino-esp32/en/latest/installing.html).)
 
-* Go to *Tools* → *Board* → *Boards Manager* and install *esp32* board, version *2.0.5*.
+* Go to *Tools* → *Board* → *Boards Manager* and install *esp32* board, version *2.0.11*.
 
 * Close Arduino IDE.
 
 ### Install VirtualBox and Ubuntu
 
-* Install [VirtualBox](https://www.virtualbox.org/wiki/Downloads) (*Windows hosts*).
+* Install [VirtualBox](https://www.virtualbox.org/wiki/Downloads) (*Windows hosts*). Instructions below are for version 7.0.10.
 
-* Download [Ubuntu Server](https://ubuntu.com/download/server) ISO image. Instructions below are for version 22.04.1.
+* Download [Ubuntu Server](https://ubuntu.com/download/server) ISO image. Instructions below are for version 23.04.
 
 * In VirtualBox, go to *Machine* → *New*.
-	* *Name and operating system*: Enter "Ubuntu" as *Name*. *Type* should be *Linux* and *Version* should be *Ubuntu (64-bit)*.
-	* *Memory size*: Enter 2048 MB if you have enough resources.
-	* *Hard disk*: Select *Create a virtual hard disk now*.
-	* *Hard disk file type*: *VDI* is fine.
-	* *Storage on physical hard disk*: Select *Fixed size* if you have enough resources.
-	* *File location and size*: Set size to 20 GB or at least 15 GB.
+	* At the bottom, click the button *Expert Mode* (if there is only button *Guided Mode*, you are already in expert mode)
+	* Tab *Name and Operating System*
+		* *Name*: "Ubuntu"
+		* *ISO image*: Select Ubuntu Server ISO image you have downloaded above.
+		* Check *Skip Unattended Installation*
+	* Tab *Hardware*
+		* *Base Memory*: Enter 2048 MB if you have enough resources.
+	* Tab *Hard Disk*
+		* Select *Create a Virtual Hard Disk Now*.
+		* *Hard Disk File Location and Size*: Set size to 20 GB or more (minimally 15 GB).
+		* *Hard Disk File Type and Variant*: *VDI* is fine; select *Pre-allocate Full Size*.
+	* Click *Finish*
 
 * Start the machine you have just created.
 
-* *Select start-up disk*: Select Ubuntu Server ISO image you have downloaded above.
-
 * Ubuntu Server installer will boot up and guide you through installation.
-	* Default settings are mostly ok.
+	* General note: default settings are mostly ok.
 	* Change keyboard layout if it does not match yours.
 	* Choose full Ubuntu Server (not minimized).
 	* On *Storage configuration* step installer might not allocate all available disk space for mount point `/` (for example, you created disk with 20 GB, but installer allocated only 10 GB). Change the size of device mounted to `/` (*ubuntu-lv*) to fix this.
-	* When confirming data loss on disks selected for installation, you can safely continue, because in this case "disk" refers to the 15 GB virtual disk we have created above.
-	* *Your server's name*: `ubuntu`
+	* When confirming data loss on disks selected for installation, you can safely continue, because in this case "disk" refers to the 20 GB virtual disk we have created above.
+	* *Your server’s name*: `ubuntu`
 	* *Pick a username*: `ubuntu`
 	* *SSH Setup*: Check option *Install OpenSSH server*.
 	* After installation completes, select *Reboot Now*.
@@ -58,9 +62,9 @@ Instructions last updated: **2022-09-17**, [arduino-esp32](https://github.com/es
 * When system boots, *ubuntu login* prompt will appear (if it does not appear but system seems to finish loading, press enter key and prompt should appear). Enter `ubuntu` (username we chose above).
 
 * We will now configure Ubuntu and VirtualBox to allow SSH connection. SSH will make using command line easier (native support for copy and paste) and will later allow us to transfer arduino-esp32 files to Windows without installing VirtualBox Guest Additions. Enter the following commands:
-	* `sudo apt-get update`
-	* `sudo apt-get upgrade`
-	* `sudo apt-get install openssh-server` (should already be installed, but just to make sure)
+	* `sudo apt update`
+	* `sudo apt upgrade`
+	* `sudo apt install openssh-server` (should already be installed, but just to make sure)
 	* `sudo service ssh start`
 	* `sudo systemctl status ssh` (to verify service is running – it should read *Active: active (running)*)
 	* `sudo ufw allow ssh` (to add a firewall rule)
@@ -70,10 +74,10 @@ Instructions last updated: **2022-09-17**, [arduino-esp32](https://github.com/es
 	* `sudo shutdown 0`
 
 * In VirtualBox, go to the machine and select *Settings*.
-	* Go to *Network* → *Advanced* → *Port Forwarding*.
+	* Go to *Network* → *Adapter 1* → *Advanced* → *Port Forwarding*.
 	* Add new rule: Protocol *TCP*, Host IP *127.0.0.1*, Host Post *2222*, Guest IP is the IP that `ip r` command displayed (for example *10.0.2.15*), Guest Port *22*.
 
-* Start machine in headless mode: go to *Machine* → *Start* → *Headless Start*. Machine will run but no additional window will be opened. You can always go to *Machine* → *Show* to view machine's screen. (When closing this window, you should select *Continue running in the background*.)
+* Start machine in headless mode: go to *Machine* → *Start* → *Headless Start*. Machine will run but no additional window will be opened. You can always go to *Machine* → *Show* to view machine’s screen. (When closing this window, you should select *Continue running in the background*.)
 
 * We should now be able to connect to the machine using SSH. We will use Windows command prompt (*cmd.exe*), but you can use Putty or any other SSH terminal.
 
@@ -85,9 +89,10 @@ Instructions last updated: **2022-09-17**, [arduino-esp32](https://github.com/es
 
 (Commands are taken from [Arduino-ESP32 documentation – Library Builder](https://docs.espressif.com/projects/arduino-esp32/en/latest/lib_builder.html). Documentation on [ESP32 Arduino Lib Builder](https://github.com/espressif/esp32-arduino-lib-builder/blob/master/README.md) is obsolete.)
 
-* `sudo apt-get install git wget curl libssl-dev libncurses-dev flex bison gperf cmake ninja-build ccache jq python3 python3-pip python-is-python3`
-* `sudo pip install --upgrade pip`
-* `sudo pip install --upgrade setuptools pyserial click cryptography future pyparsing pyelftools`
+* `sudo apt install git wget curl libssl-dev libncurses-dev flex bison gperf cmake ninja-build ccache jq python3 python3-pip python-is-python3`
+* `rm /lib/python3.11/EXTERNALLY-MANAGED` (to avoid errors related to virtual environment, because ESP32 build script does not seem to support virtual environments at this time)
+* `pip install --upgrade pip`
+* `pip install --upgrade setuptools pyserial click cryptography future pyparsing pyelftools`
 * `cd`
 * `git clone https://github.com/espressif/esp32-arduino-lib-builder`
 * `cd esp32-arduino-lib-builder`
@@ -95,11 +100,8 @@ Instructions last updated: **2022-09-17**, [arduino-esp32](https://github.com/es
 
 (Last command takes a while to execute on the first run.)
 
-If the last command prints *The following Python requirements are not satisfied* somewhere in the ouput, it failed. Run command `sudo pip install`, followed by packages listed in the output. Enclose package names in quotation marks and separate them with a space. The following command should probably do the trick:
-
-`sudo pip install "pyparsing>=2.0.3,<2.4.0" "idf-component-manager~=1.0" "gdbgui==0.13.2.0" "pygdbmi<=0.9.0.2" "python-socketio<5" "itsdangerous<2.1" "kconfiglib==13.7.1" "reedsolo>=1.5.3,<=1.5.4" "bitstring>=3.1.6" "ecdsa>=0.16.0" "construct==2.10.54"`
-
-If previous `pip install` command fails with error regarding *cffi* package version mismatch, run `sudo apt-get install python3-cffi` and then execute above `pip install` command again.
+If you try to run `build.sh` for any configuration at this point, error will occur. So we need to run the following command ([link to bug](https://github.com/espressif/esp32-arduino-lib-builder/issues/134)):
+* `(cd components/esp-dl && git switch release/v1.1)` (command includes parentheses)
 
 ### Edit configuration
 
@@ -119,7 +121,7 @@ Resulting changes need to be incorporated into file `configs/defconfig.esp32s2`.
 * You can skip added/removed lines that are commented (they start with "#").
 * You can skip added deprecated options (from line "# Deprecated options for backward compatibility" to "# End of deprecated options").
 
-After you've incorporated all changes, run `./build.sh -b menuconfig -t esp32s2` again and check if changes are applied.
+After you’ve incorporated all changes, run `./build.sh -b menuconfig -t esp32s2` again and check if changes are applied.
 
 ### Build the library
 
@@ -141,10 +143,14 @@ Navigate Windows command prompt to folder with *pscp.exe* and execute the follow
 
 Library files will be transfered to `out` folder.
 
-(Before proceeding with the steps below, I suggest you make a backup of `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.5\` folder.)
+(Before proceeding with the steps below, I suggest you make a backup of `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.11\` folder.)
 
-Edit file `out\platform.txt`: replace line `tools.esptool_py.path` with the one from original file `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.5\platform.txt`.
+Edit file `out\platform.txt` and replace the following lines with the ones from original file `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.11\platform.txt`:
+* `tools.xtensa-*` (four lines)
+* `tools.riscv32-*` (two lines)
+* `debug.server.openocd.*` (three lines)
+* `tools.esptool_py.path`
 
-Copy and overwrite all files from `out` folder to `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.5\`.
+Copy and overwrite all files from `out` folder to `%USERPROFILE%\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.11\`.
 
 Run Arduino IDE and you should be able to build your project.
